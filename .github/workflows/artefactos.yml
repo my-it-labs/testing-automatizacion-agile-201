@@ -1,0 +1,34 @@
+# Workflow de partida del lab M04-04. Cópialo a .github/workflows/artefactos.yml (raíz del repo).
+name: Artefactos
+
+on:
+  push:
+    paths:
+      - 'ejercicios/M04-04-publicar-artefactos/**'
+      - '.github/workflows/artefactos.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: E2E con reporte
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ejercicios/M04-04-publicar-artefactos
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        working-directory: .
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+
+      # Sube el reporte HTML como artefacto del workflow
+      - uses: actions/upload-artifact@v7
+        with:
+          name: reporte-html
+          path: ejercicios/M04-04-publicar-artefactos/playwright-report/
