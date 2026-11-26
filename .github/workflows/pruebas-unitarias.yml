@@ -1,0 +1,33 @@
+name: Pruebas unitarias
+
+# Cuándo se ejecuta: en cada push y en cada pull request que toque el ejercicio o el propio workflow
+on:
+  push:
+    paths:
+      - 'ejercicios/M04-01-primer-workflow/**'
+      - '.github/workflows/pruebas-unitarias.yml'
+  pull_request:
+    paths:
+      - 'ejercicios/M04-01-primer-workflow/**'
+      - '.github/workflows/pruebas-unitarias.yml'
+
+jobs:
+  vitest:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Trae el código del commit que ha disparado la ejecución
+      - uses: actions/checkout@v7
+
+      # 2. Instala Node 22 y guarda en caché la descarga de npm (clave: package-lock.json)
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # 3. Instala las dependencias de la raíz, exactamente las del package-lock.json
+      - run: npm ci
+
+      # 4. Ejecuta las pruebas desde la carpeta del ejercicio
+      - run: npx vitest run --reporter=verbose
+        working-directory: ejercicios/M04-01-primer-workflow
